@@ -1,0 +1,86 @@
+// 핀 정의
+const int trigPin = 9;  // 초음파 센서 TRIG 핀
+const int echoPin = 10; // 초음파 센서 ECHO 핀
+const int redPin = 3;   // 빨간색 LED 핀
+const int yellowPin = 4; // 노란색 LED 핀
+const int greenPin = 5;  // 초록색 LED 핀
+
+
+long duration;  // 초음파 센서로부터 측정된 시간
+int distance;   // 측정된 거리 (cm)
+
+
+void setup() {
+  // 핀 모드 설정
+  pinMode(trigPin, OUTPUT);  // TRIG 핀은 출력
+  pinMode(echoPin, INPUT);   // ECHO 핀은 입력
+  pinMode(redPin, OUTPUT);   // 빨간색 LED는 출력
+  pinMode(yellowPin, OUTPUT); // 노란색 LED는 출력
+  pinMode(greenPin, OUTPUT);  // 초록색 LED는 출력
+
+
+  // 시리얼 모니터 시작
+  Serial.begin(9600);
+}
+
+
+void loop() {
+  // 초음파 센서로 거리 측정
+  digitalWrite(trigPin, LOW);  // TRIG 핀 LOW로 설정 (초기화)
+  delayMicroseconds(2);        // 2마이크로초 대기
+  digitalWrite(trigPin, HIGH); // TRIG 핀 HIGH로 설정
+  delayMicroseconds(10);       // 10마이크로초 대기
+  digitalWrite(trigPin, LOW);  // TRIG 핀 LOW로 설정
+
+
+  // ECHO 핀에서 반사 신호의 시간 측정
+  duration = pulseIn(echoPin, HIGH);
+  distance = duration * 0.0344 / 2;  // 거리 계산 (단위: cm)
+
+
+  // 거리 출력 (디버깅용)
+  Serial.print("Distance: ");
+  Serial.print(distance);
+  Serial.println(" cm");
+
+
+  // 거리 값에 따른 신호등 제어
+  if (distance < 20) {  // 교통량이 많을 때 (차량이 가까운 경우)
+    greenLight(); // 초록불
+  }
+  else if (distance >= 20 && distance < 50) {  // 교통량이 보통일 때
+    yellowLight(); // 노란불
+  }
+  else {  // 교통량이 적을 때 (차량이 멀리 있을 경우)
+    redLight(); // 빨간불
+  }
+
+
+  delay(500); // 0.5초 대기 후 다시 측정
+}
+
+
+// 초록불을 켜는 함수
+void greenLight() {
+  digitalWrite(redPin, LOW);    // 빨간불 끄기
+  digitalWrite(yellowPin, LOW); // 노란불 끄기
+  digitalWrite(greenPin, HIGH); // 초록불 켜기
+}
+
+
+// 노란불을 켜는 함수
+void yellowLight() {
+  digitalWrite(redPin, LOW);    // 빨간불 끄기
+  digitalWrite(yellowPin, HIGH); // 노란불 켜기
+  digitalWrite(greenPin, LOW);  // 초록불 끄기
+}
+
+
+// 빨간불을 켜는 함수
+void redLight() {
+  digitalWrite(redPin, HIGH);   // 빨간불 켜기
+  digitalWrite(yellowPin, LOW); // 노란불 끄기
+  digitalWrite(greenPin, LOW);  // 초록불 끄기
+}
+
+
